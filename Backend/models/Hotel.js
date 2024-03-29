@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const HostelSchema = new mongoose.Schema({
+const HotelSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please add a name"],
@@ -34,4 +34,4 @@ const HostelSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Hotel", HospitalSchema);
+module.exports = mongoose.model("Hotel", HotelSchema);
