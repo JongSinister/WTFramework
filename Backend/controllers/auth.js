@@ -1,5 +1,6 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/User");
+const { use } = require("../routes/appointments");
 
 //@desc    Register User
 //@route   POST /api/v1/auth/register
@@ -114,7 +115,7 @@ exports.logout = async (req, res, next) => {
 };
 
 //@desc    Get user appointment
-//@route   POST /api/v1/auth/appointment
+//@route   GET /api/v1/auth/appointment
 //@access  Private
 exports.getMyAppointment = async (req, res, next) => {
   //Find user appointment
@@ -136,3 +137,75 @@ exports.getMyAppointment = async (req, res, next) => {
     data: userAppointments,
   });
 };
+
+
+//@desc    Get user wifiPassword
+//@route   GET /api/v1/auth/wifi
+//@access  Private
+exports.getMyWifiPassword = async (req, res, next) => {
+    try {
+        const userWifiAppointments = await Appointment.find({ user: req.user.id });
+
+        // Extract WiFi passwords from appointments
+        const userWifiPasswords = userWifiAppointments.map(appointment => ({
+            apptDate: appointment.apptDate,
+            wifiPassword: appointment.wifiPassword
+        }));
+
+        res.status(200).json({
+            success: true,
+            data: userWifiPasswords
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Cannot get Wifi passwords" });
+    }
+}
+
+//@desc    Login to wifi
+//@route   POST /api/v1/auth/wifi
+//@access  Public
+exports.loginToWifi = async (req, res, next) => {
+    try {
+        const {email, wifiPassword} = req.body;
+
+        if(!email || !wifiPassword){
+            return res.status(404).json({success: false, message: "Body is needed"});
+        }
+        const user = await User.findOne( {email} );
+        if(!user){
+            return res.status(404).json({success: false, message: "User not found"});
+        }
+        // Check if the user has an appointment
+        const appointments = await Appointment.find({ user: user._id });
+        if (!appointments) {
+            return res.status(400).json({ success: false, message: "User does not have any appointments" });
+        }
+        // Check if the appointment date is in the future
+        const currentDateTime = new Date();
+        let wrongPass = true;
+        let nearFuture = false;
+        for(each of appointments){
+            if(each.wifiPassword === wifiPassword){
+                if(each.apptDate > currentDateTime){
+                    nearFuture = true;
+                }
+                wrongPass = false;
+                break;
+            }
+
+        }
+
+        if(wrongPass){
+            return res.status(401).json({ success: false, message: "Incorrect WiFi password" });
+        }
+        if(nearFuture){
+            return res.status(400).json({ success: false, message: "Appointment is in the future" });
+        }
+        res.status(200).json({success: true, message: "WiFi login successful"});
+
+    }catch(err){
+        console.log(err.stack);
+        res.status(500).json({success: false, message: "Error when trying to login"});
+    }
+}
