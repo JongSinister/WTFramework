@@ -18,7 +18,7 @@ router
   .post(protect, authorize("admin", "user"), addAppointment);
 router
   .route("/:id")
-  .get(protect, getAppointment)
+  .get(protect, authorize("admin"),getAppointment)
   .put(protect, authorize("admin", "user"), updateAppointment)
   .delete(protect, authorize("admin", "user"), deleteAppointment);
 
