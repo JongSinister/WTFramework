@@ -107,8 +107,19 @@ exports.addAppointment = async (req, res, next) => {
         success: false,
         message: `The user with ID ${req.user.id} has already made 3 appointments`,
       });
+    }    
+
+    let newPassword = generateRandomPassword();
+    let checkPassword = await isPassExisted(newPassword);
+    while(checkPassword){
+      newPassword = generateRandomPassword();
+      checkPassword = await isPassExisted(newPassword);
     }
+
+    req.body.wifiPassword = newPassword;
+
     const appointment = await Appointment.create(req.body);
+
     res.status(200).json({
       success: true,
       data: appointment,
@@ -190,13 +201,13 @@ exports.deleteAppointment = async (req, res, next) => {
   } catch (err) {
     console.log(err.stack);
   }
-}
+};
 
 
 function generateRandomPassword() {
   //random length from 6 to 8
   const length = Math.floor((Math.random() * 2) + 6);
-  const allstr = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]|;:,.<>?";
+  const allstr = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let password = "";
   for (let i = 0; i < length; i++) {
       const randomIdx = Math.floor(Math.random() * allstr.length);
@@ -210,9 +221,9 @@ async function isPassExisted(newPassword) {
     let existedWifi = await Appointment.find({
       wifiPassword: newPassword
     });
-    return existedWifi.length === 0;
+    return existedWifi.length !== 0;
   }catch(err){
     console.log(err.stack);
-    return false;
+    return true;
   }
 }
