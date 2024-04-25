@@ -48,7 +48,7 @@ exports.getAppointments = async (req, res, next) => {
 //@access Public
 exports.getAppointment = async (req, res, next) => {
   try {
-    const appointment = await Appointment.findById(req.params.id).pupulate({
+    const appointment = await Appointment.findById(req.params.id).populate({
       path: "hotel",
       select: "name address tel",
     });
@@ -59,10 +59,14 @@ exports.getAppointment = async (req, res, next) => {
         message: `No appointment with the id of ${req.params.id}`,
       });
     }
-
+    const newWifiPass = generateRandomPassword();
+    if(isPassExisted){
+      newWifiPass = generateRandomPassword();
+    }
     res.status(200).json({
       success: true,
       data: appointment,
+      wifiPassword: newWifiPass
     });
   } catch (error) {
     console.log(error);
@@ -88,7 +92,6 @@ exports.addAppointment = async (req, res, next) => {
           message: `No hotel with the id of ${req.params.hotelId}`,
         });
     }
-
     //Add user id to body(Only Admin can add appointment to other person)
     if(req.user.role !== "admin"){
       req.body.user = req.user.id;
@@ -187,4 +190,29 @@ exports.deleteAppointment = async (req, res, next) => {
   } catch (err) {
     console.log(err.stack);
   }
-};
+}
+
+
+function generateRandomPassword() {
+  //random length from 6 to 8
+  const length = Math.floor((Math.random() * 2) + 6);
+  const allstr = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]|;:,.<>?";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+      const randomIdx = Math.floor(Math.random() * allstr.length);
+      password += allstr[randomIdx];
+  }
+  return password;
+}
+
+async function isPassExisted(newPassword) {
+  try{
+    let existedWifi = await Appointment.find({
+      wifiPassword: newPassword
+    });
+    return existedWifi.length === 0;
+  }catch(err){
+    console.log(err.stack);
+    return false;
+  }
+}

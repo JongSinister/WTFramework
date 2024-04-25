@@ -15,6 +15,10 @@ const AppointmentSchema = new mongoose.Schema({
     ref: "Hotel",
     required: true,
   },
+  wifiPassword: {
+    type: String,
+    required: true
+  },
   createAt: {
     type: Date,
     default: Date.now,
