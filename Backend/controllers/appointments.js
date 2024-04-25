@@ -77,11 +77,10 @@ exports.getAppointment = async (req, res, next) => {
 exports.addAppointment = async (req, res, next) => {
   try{
     req.body.hotel=req.params.hotelId;
-
     const hotel = await Hotel.findById(req.params.hotelId);
-
+    req.body.user=req.user.id;
     if(!hotel){
-      return res.status(404).json({success:false,message:`No hotel with the if of ${req.params.hotelId}`});
+      return res.status(404).json({success:false,message:`No hotel with the id of ${req.params.hotelId}`});
     }
     const appointment = await Appointment.create(req.body);
 
@@ -131,6 +130,8 @@ exports.deleteAppointment=async(req,res,next)=>{
     }
 
     //Make sure user is the appointment owner
+    console.log(req.user.id)
+    console.log(appointment.user.toString())
     if(appointment.user.toString() !== req.user.id && req.user.role !== "admin"){
       return res.status(401).json({success:false,message:`User ${req.user.id} is not authorized to delete this appointment`});
     }
