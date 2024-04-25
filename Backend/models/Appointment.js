@@ -17,7 +17,7 @@ const AppointmentSchema = new mongoose.Schema({
   },
   wifiPassword: {
     type: String,
-    required: true
+    required: false
   },
   createAt: {
     type: Date,
