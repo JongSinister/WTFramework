@@ -1,0 +1,56 @@
+@startuml Manage Hotel
+
+title "Manage Hotel"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:hotel" as auth
+participant "<<controllers>>\n:hotel" as controllerHotels
+participant "<<model>>\n:hotel" as modelHotel
+database "<<MongoDB>>\n:hotel" as hotelDatabase
+
+client->server ++:req.post('/hotels')
+server->auth --++:app.use('api/v1/hotels',hotels)
+auth -> controllerHotels --++:createHotel
+controllerHotels->modelHotel ++:create(req.body)
+modelHotel ->hotelDatabase ++: HotelSchema
+hotelDatabase --> modelHotel --: hotel
+controllerHotels <-- modelHotel --:hotel
+controllerHotels->client --:response
+
+client->server ++:req.get('/hotels')
+server->auth --++:app.use('api/v1/hotels',hotels)
+auth -> controllerHotels --++:getHotels
+controllerHotels->modelHotel ++:find()
+modelHotel ->hotelDatabase ++: HotelSchema
+hotelDatabase --> modelHotel --: hotel
+controllerHotels <-- modelHotel --:hotel
+controllerHotels->client --:response
+
+client->server ++:req.get('/hotels/:id')
+server->auth --++:app.use('api/v1/hotels',hotels)
+auth -> controllerHotels --++:getHotel
+controllerHotels->modelHotel ++:findById(req.param.id)
+modelHotel ->hotelDatabase ++: HotelSchema
+hotelDatabase --> modelHotel --: hotel
+controllerHotels <-- modelHotel --:hotel
+controllerHotels->client --:response
+
+client->server ++:req.put('/hotels/:id')
+server->auth --++:app.use('api/v1/hotels',hotels)
+auth -> controllerHotels --++:updateHotel
+controllerHotels->modelHotel ++:findByIdAndUpdate(req.params.id,req.body);
+modelHotel ->hotelDatabase ++: HotelSchema
+hotelDatabase --> modelHotel --: hotel
+controllerHotels <-- modelHotel --:hotel
+controllerHotels->client --:response
+
+client->server ++:req.delete('/hotels/:id')
+server->auth --++:app.use('api/v1/hotels',hotels)
+auth -> controllerHotels --++:deleteHotel
+controllerHotels->modelHotel ++:findByIdAndDelete(req.param.id)
+modelHotel ->hotelDatabase ++: HotelSchema
+controllerHotels->client --:
+
+
+@enduml
