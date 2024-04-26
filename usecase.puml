@@ -1,29 +1,63 @@
 @startuml Hotel system Use Case Diagram
 left to right direction
 actor "User" as user
-rectangle "Hotel booking System" as VacQsystem{
-    usecase "Register" as register
-    usecase "Login/Logout" as auth
-    usecase "View Hotels" as viewHotels
-    usecase "Manage Hotels" as manageHotel
-    usecase "Get/Login\nWIFI password" as wifi
+actor "Admin" as admin
+
+rectangle "Hotel Booking system" as HotelbookingSystem{
+    rectangle "Hotel System" as Hotelsystem{
+        usecase "Get All hotels" as getAllhotels
+        usecase "Get hotel" as getSinglehotel
+        usecase "Create a hotel" as createHotel
+        usecase "Delete a hotel" as deleteHotel
+    }
 
 
-    usecase "Manage\nAppointments" as manageAppt
+    rectangle "Booking System" as Bookingsystem{
+        usecase "Register" as register
+        usecase "Login" as login
+        usecase "Logout" as logout
+        usecase "Get Me" as getMe
+        usecase "Get My Appointments" as getMyAppts
+        usecase "Get my WIFI password" as getwifi
+        usecase "Login to WIFI" as loginwifi
+    }
 
+    rectangle "Auth System" as Authsystem{
+        usecase "Get all Appointments" as getallAppts
+        usecase "Get Appointments for hotel" as getApptHotel
+        usecase "Add new Appointment" as addAppt
+        usecase "Update Appointment information" as updateAppt
+        usecase "Delete Appointments" as delAppt
+        usecase "Delete Hotel and Appointment" as delHotelandAppt
 }
 
+user -- getAllhotels
+user -- getSinglehotel
 user -- register
-user -- viewHotels
-user -- manageAppt
-user -- auth
-user -- wifi
+user -- login
+user -- getMe
+user -- getMyAppts
+user -- logout
+user -- getwifi
+user -- loginwifi
+user -- getApptHotel
+user -- addAppt
+user -- updateAppt
+user -- delAppt
 
+getAllhotels -- admin
+getSinglehotel -- admin
+createHotel -- admin
+deleteHotel -- admin
 
-actor "Admin" as admin
 register -- admin
-manageAppt -- admin
-manageHotel -- admin
-auth -- admin
+login -- admin
+logout -- admin
+getMe -- admin
+getallAppts -- admin
+addAppt -- admin
+delAppt -- admin
+delHotelandAppt -- admin
+
 
 @enduml
