@@ -12,7 +12,7 @@ rectangle "Hotel Booking system" as HotelbookingSystem{
     }
 
 
-    rectangle "Booking System" as Bookingsystem{
+    rectangle "Auth System" as Authsystem{
         usecase "Register" as register
         usecase "Login" as login
         usecase "Logout" as logout
@@ -22,13 +22,14 @@ rectangle "Hotel Booking system" as HotelbookingSystem{
         usecase "Login to WIFI" as loginwifi
     }
 
-    rectangle "Auth System" as Authsystem{
+    rectangle "Booking System" as Bookingsystem{
         usecase "Get all Appointments" as getallAppts
         usecase "Get Appointments for hotel" as getApptHotel
         usecase "Add new Appointment" as addAppt
         usecase "Update Appointment information" as updateAppt
         usecase "Delete Appointments" as delAppt
         usecase "Delete Hotel and Appointment" as delHotelandAppt
+    }
 }
 
 user -- getAllhotels
