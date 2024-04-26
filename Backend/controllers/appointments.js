@@ -14,7 +14,7 @@ exports.getAppointments = async (req, res, next) => {
     });
   } else {
     if (req.params.hotelId) {
-      console.log(req.params.hotelId);
+      // console.log(req.params.hotelId);
       query = Appointment.find({ hotel: req.params.hotelId }).populate({
         path: "hotel",
         select: "name address tel",
@@ -120,7 +120,7 @@ exports.addAppointment = async (req, res, next) => {
 
     const appointment = await Appointment.create(req.body);
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       data: appointment,
     });
