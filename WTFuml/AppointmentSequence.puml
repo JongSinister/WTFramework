@@ -1,0 +1,72 @@
+@startuml Manage Appointment
+
+title "Manage Appointment"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:appointment" as appointment
+participant "<<controllers>>\n:appointment" as controllerAppointment
+participant "<<model>>\n:appointment" as modelAppointment
+database "<<MongoDB>>\n:appointment" as appointmentDatabase
+database "<<MongoDB>>\n:hotel" as hotelDatabase
+'database "<<MongoDB>>\n:user" as userDatabase
+
+client->server ++:req.post('/appointments')
+server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment -> controllerAppointment --++:addAppointment
+controllerAppointment->modelAppointment ++:findById(req.params.hotelId)
+modelAppointment ->hotelDatabase ++: HotelSchema
+hotelDatabase --> modelAppointment --: hotel
+controllerAppointment <-- modelAppointment --:hotel
+controllerAppointment->client :response
+
+controllerAppointment->modelAppointment ++:find({ user: req.user.id })
+modelAppointment ->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase --> modelAppointment --:userAppointment
+modelAppointment --> controllerAppointment --:userAppointment
+
+controllerAppointment->modelAppointment ++:create(req.body)
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase-->modelAppointment --:appointment
+modelAppointment-->controllerAppointment --:appointment
+controllerAppointment -> client --: response
+
+client->server ++:req.get('/appointments')
+server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->controllerAppointment --++:getAppointment
+controllerAppointment->modelAppointment ++:find()
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase-->modelAppointment --:appointment
+modelAppointment-->controllerAppointment --:appoinrment
+controllerAppointment->client --:response
+
+client->server ++:req.get('/appointments/:id')
+server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->controllerAppointment --++:getAppointment
+controllerAppointment->modelAppointment ++:findById(req.param.id)
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase-->modelAppointment --:appointment
+modelAppointment-->controllerAppointment --:appoinrment
+controllerAppointment->client --:response
+
+client->server ++:req.put('/appointments/:id')
+server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->controllerAppointment --++:updateAppointment
+controllerAppointment->modelAppointment ++:findById(req.param.id)
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase-->modelAppointment --:appointment
+modelAppointment-->controllerAppointment --:appointment
+controllerAppointment->client :response
+controllerAppointment->modelAppointment ++:findByIdAndUpdate(req.params.id,\nreq.body,{new:true,\nrunValidators:true});
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+appointmentDatabase-->modelAppointment --:appointment
+modelAppointment-->controllerAppointment --:appointment
+controllerAppointment->client --:response
+
+client->server ++:req.delete('/appointments/:id')
+server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->controllerAppointment --++:deleteAppointment
+controllerAppointment->modelAppointment ++:findByIdAndDelete(req.param.id)
+modelAppointment->appointmentDatabase ++:AppointmentSchema
+controllerAppointment->client
+@enduml
