@@ -1,0 +1,116 @@
+@startuml Manage Class_Diagram
+title "HotelBookingService Class Diagram"
+left to right direction
+class "<<Application>>\nHotelBookingService" as BookingService{}
+
+class "<<Resource>>\nHotels" as ResourceHotels{
+    <<GET>> +getHotels():Hotel
+    <<POST>> +createHotel():Hotel
+}
+
+class "<<Resource>>\nHotel" as ResourceHotel {
+    <<GET>> +getHotel(): Hotel
+    <<PUT>> +updateHotel(): Hotel
+    <<DELETE>> +deleteHotel(): void
+}
+
+class "<<Representation>>\nHotel" as RepresentationHotel {
+    -name
+    -address
+    -district
+    -province
+    -postalcode
+    -telephone
+    -region
+}
+
+class "<<Resource>>\nAuth" as ResourceAuth{}
+
+class "<<Resource>>\nAuth" as ResourceAuthregister{
+    <<POST>> + register(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthlogin{
+    <<POST>> + login(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthgetme{
+    <<POST>> + getMe(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthlogout{
+    <<POST>> + logout(): User
+}
+
+class "<<Resource>>\nAuth" as ResourceAuthAppt{
+    <<GET>> + getMyAppointment(): Appointment[]
+}
+
+class "<<Resource>>\nAuth" as ResourceAuthWifi{
+    <<GET>> + getMyWifiPassword(): Appointment
+    <<POST>> + loginToWifi(): User
+}
+
+class "<<Representation>>\nUser" as RepresentationUser {
+    -name
+    -email
+    -tel
+    -role
+    -password
+}
+
+class "<<Resource>>\nAppointments" as ResourceAppointments {
+    <<GET>> + getAppointments(): Appointment[]
+}
+
+class "<<Resource>>\nAppointment" as ResourceAppointment {
+    <<GET>> + getAppointment(): Appointment
+    <<PUT>> + updateAppointment(): Appointment
+    <<DELETE>> + deleteAppointment(): Appointment
+}
+
+class "<<Resource>>\nAppointment" as ResourceAppointmentPost{
+    <<POST>> + addAppointment():Appointment
+}
+
+class "<<Representation>>\nAppointment" as RepresentationAppointment {
+    -apptDate
+    -user
+    -hotel
+    -wifiPassword
+    -createAt
+}
+
+
+
+BookingService ..> ResourceHotels:"/hotels\n<<Path>>"
+BookingService ..> ResourceAuth:"/auth\n<<Path>>"
+BookingService ..> ResourceAppointments:"/appointments\n<<Path>>"
+
+ResourceHotel ..> RepresentationHotel: "<<use>>"
+ResourceHotels ..> ResourceHotel: "/{hotelId}\n<<Path>>"
+ResourceHotels ..> RepresentationHotel: "<<use>>"
+ResourceHotel ..> ResourceAppointmentPost: "/appointments\n<<Path>>"
+
+
+ResourceAuth ..> ResourceAuthregister:"/register\n<<Path>>"
+ResourceAuth ..> ResourceAuthlogin:"/login\n<<Path>>"
+ResourceAuth ..> ResourceAuthgetme:"/me\n<<Path>>"
+ResourceAuth ..> ResourceAuthlogout:"/logout\n<<Path>>"
+ResourceAuth ..> ResourceAuthAppt:"/appointment\n<<Path>>"
+ResourceAuth ..> ResourceAuthWifi:"/wifi\n<<Path>>"
+
+ResourceAuthregister ..>RepresentationUser: "<<use>>"
+ResourceAuthlogin ..>RepresentationUser: "<<use>>"
+ResourceAuthgetme ..>RepresentationUser: "<<use>>"
+ResourceAuthlogout ..>RepresentationUser: "<<use>>"
+RecourceAuthAppt ..> RepresentationAppointment: "<<use>>"
+ResourceAuthWifi ..> RepresentationAppointment: "<<use>>"
+
+ResourceAppointments ..> ResourceAppointment:"/{appointmentId}\n<<Path>>"
+ResourceAppointment ..> RepresentationAppointment:"/<<use>>"
+ResourceAppointments ..> RepresentationAppointment:"/<<use>>"
+ResourceAppointments ..> RepresentationHotel:"<<use>>"
+ResourceAppointment ..> RepresentationHotel:"<<use>>"
+ResourceAppointmentPost ..> RepresentationAppointment:"/<<use>>"
+
+
+
+@enduml
