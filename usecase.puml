@@ -1,0 +1,29 @@
+@startuml Hotel system Use Case Diagram
+left to right direction
+actor "User" as user
+rectangle "Hotel booking System" as VacQsystem{
+    usecase "Register" as register
+    usecase "Login/Logout" as auth
+    usecase "View Hotels" as viewHotels
+    usecase "Manage Hotels" as manageHotel
+    usecase "Get/Login\nWIFI password" as wifi
+
+
+    usecase "Manage\nAppointments" as manageAppt
+
+}
+
+user -- register
+user -- viewHotels
+user -- manageAppt
+user -- auth
+user -- wifi
+
+
+actor "Admin" as admin
+register -- admin
+manageAppt -- admin
+manageHotel -- admin
+auth -- admin
+
+@enduml

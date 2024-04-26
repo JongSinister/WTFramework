@@ -1,6 +1,5 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/User");
-const { use } = require("../routes/appointments");
 
 //@desc    Register User
 //@route   POST /api/v1/auth/register
