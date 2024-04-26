@@ -5,14 +5,25 @@ title "Manage Appointment"
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
 participant "<<router>>\n:appointment" as appointment
+participant "<<middleware>>\n:auth" as middleware
+participant "<<service>>\n:jwt" as jwt
 participant "<<controllers>>\n:appointment" as controllerAppointment
 participant "<<model>>\n:appointment" as modelAppointment
+participant "<<model>>\n:user" as modelUser
 database "<<MongoDB>>\n:appointment" as appointmentDatabase
 database "<<MongoDB>>\n:hotel" as hotelDatabase
-'database "<<MongoDB>>\n:user" as userDatabase
+database "<<MongoDB>>\n:user" as userDatabase
 
 client->server ++:req.post('/appointments')
 server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->appointment --:next
 appointment -> controllerAppointment --++:addAppointment
 controllerAppointment->modelAppointment ++:findById(req.params.hotelId)
 modelAppointment ->hotelDatabase ++: HotelSchema
@@ -33,6 +44,14 @@ controllerAppointment -> client --: response
 
 client->server ++:req.get('/appointments')
 server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->appointment --:next
 appointment->controllerAppointment --++:getAppointment
 controllerAppointment->modelAppointment ++:find()
 modelAppointment->appointmentDatabase ++:AppointmentSchema
@@ -42,6 +61,14 @@ controllerAppointment->client --:response
 
 client->server ++:req.get('/appointments/:id')
 server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->appointment --:next
 appointment->controllerAppointment --++:getAppointment
 controllerAppointment->modelAppointment ++:findById(req.param.id)
 modelAppointment->appointmentDatabase ++:AppointmentSchema
@@ -51,6 +78,14 @@ controllerAppointment->client --:response
 
 client->server ++:req.put('/appointments/:id')
 server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->appointment --:next
 appointment->controllerAppointment --++:updateAppointment
 controllerAppointment->modelAppointment ++:findById(req.param.id)
 modelAppointment->appointmentDatabase ++:AppointmentSchema
@@ -65,6 +100,14 @@ controllerAppointment->client --:response
 
 client->server ++:req.delete('/appointments/:id')
 server->appointment --++:app.use('api/v1/appointments',appointments)
+appointment->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->appointment --:next
 appointment->controllerAppointment --++:deleteAppointment
 controllerAppointment->modelAppointment ++:findByIdAndDelete(req.param.id)
 modelAppointment->appointmentDatabase ++:AppointmentSchema

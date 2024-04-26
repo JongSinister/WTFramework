@@ -1,9 +1,0 @@
-@startuml Manage Authentication
-
-title "Class Diagram"
-
-Class "Application"{
-    
-}
-
-@enduml

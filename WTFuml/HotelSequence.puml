@@ -4,14 +4,26 @@ title "Manage Hotel"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
-participant "<<router>>\n:hotel" as auth
+participant "<<router>>\n:hotel" as hotel
+participant "<<middleware>>\n:auth" as middleware
+participant "<<service>>\n:jwt" as jwt
 participant "<<controllers>>\n:hotel" as controllerHotels
 participant "<<model>>\n:hotel" as modelHotel
+participant "<<model>>\n:user" as modelUser
 database "<<MongoDB>>\n:hotel" as hotelDatabase
+database "<<MongoDB>>\n:user" as userDatabase
 
 client->server ++:req.post('/hotels')
-server->auth --++:app.use('api/v1/hotels',hotels)
-auth -> controllerHotels --++:createHotel
+server->hotel --++:app.use('api/v1/hotels',hotels)
+hotel->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->hotel --:next
+hotel -> controllerHotels --++:createHotel
 controllerHotels->modelHotel ++:create(req.body)
 modelHotel ->hotelDatabase ++: HotelSchema
 hotelDatabase --> modelHotel --: hotel
@@ -19,8 +31,8 @@ controllerHotels <-- modelHotel --:hotel
 controllerHotels->client --:response
 
 client->server ++:req.get('/hotels')
-server->auth --++:app.use('api/v1/hotels',hotels)
-auth -> controllerHotels --++:getHotels
+server->hotel --++:app.use('api/v1/hotels',hotels)
+hotel -> controllerHotels --++:getHotels
 controllerHotels->modelHotel ++:find()
 modelHotel ->hotelDatabase ++: HotelSchema
 hotelDatabase --> modelHotel --: hotel
@@ -28,8 +40,8 @@ controllerHotels <-- modelHotel --:hotel
 controllerHotels->client --:response
 
 client->server ++:req.get('/hotels/:id')
-server->auth --++:app.use('api/v1/hotels',hotels)
-auth -> controllerHotels --++:getHotel
+server->hotel --++:app.use('api/v1/hotels',hotels)
+hotel -> controllerHotels --++:getHotel
 controllerHotels->modelHotel ++:findById(req.param.id)
 modelHotel ->hotelDatabase ++: HotelSchema
 hotelDatabase --> modelHotel --: hotel
@@ -37,8 +49,16 @@ controllerHotels <-- modelHotel --:hotel
 controllerHotels->client --:response
 
 client->server ++:req.put('/hotels/:id')
-server->auth --++:app.use('api/v1/hotels',hotels)
-auth -> controllerHotels --++:updateHotel
+server->hotel --++:app.use('api/v1/hotels',hotels)
+hotel->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->hotel --:next
+hotel -> controllerHotels --++:updateHotel
 controllerHotels->modelHotel ++:findByIdAndUpdate(req.params.id,req.body);
 modelHotel ->hotelDatabase ++: HotelSchema
 hotelDatabase --> modelHotel --: hotel
@@ -46,8 +66,16 @@ controllerHotels <-- modelHotel --:hotel
 controllerHotels->client --:response
 
 client->server ++:req.delete('/hotels/:id')
-server->auth --++:app.use('api/v1/hotels',hotels)
-auth -> controllerHotels --++:deleteHotel
+server->hotel --++:app.use('api/v1/hotels',hotels)
+hotel->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->hotel --:next
+hotel -> controllerHotels --++:deleteHotel
 controllerHotels->modelHotel ++:findByIdAndDelete(req.param.id)
 modelHotel ->hotelDatabase ++: HotelSchema
 controllerHotels->client --:
